@@ -1,11 +1,230 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Aira · Quiet Momentum</title><link rel="stylesheet" href="/web/styles.css"><link rel="stylesheet" href="/web/quiet.css"><style>
-body{background:#f3f1eb;color:#24322e;font-family:Inter,"Segoe UI",Arial,sans-serif}header,main{max-width:1280px}header{border-color:#d8ddd4}.brand{font-size:24px;letter-spacing:-.06em}.brand span{color:#77817a}.intro{padding:54px 0 36px;max-width:700px}.intro .eyebrow{color:#547267}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,6vw,68px);font-weight:400;letter-spacing:-.05em;max-width:650px;margin:12px 0}.intro&gt;p:last-child{font-size:18px;color:#5c6961;max-width:590px}.provider-panel{border-color:#d8ddd4}.workspace{border:1px solid #d8ddd4;border-radius:18px;overflow:hidden;background:#fffefa;box-shadow:0 18px 55px #26372b0c}.conversation{border-color:#e3e5dc;padding:26px}.preview{padding:26px}.panel-heading h2{font-size:11px;letter-spacing:.12em;color:#718078}.panel-heading button,button,select{border-radius:999px}.primary{background:#315e4d!important;border-color:#315e4d!important}.primary:hover:not(:disabled){background:#244b3d!important}.message.assistant p{font-family:Georgia,serif;font-size:19px;color:#344b41}.message .who{letter-spacing:.12em;color:#8b968e}.preview #screen{min-height:370px;padding:22px 14px}.block-title{font-family:Georgia,"Times New Roman",serif;font-size:36px;font-weight:400;letter-spacing:-.04em;color:#263b32}.block-description{font-size:18px;line-height:1.55;color:#58675e}.alert{border:0;border-radius:12px;background:#edf2eb;color:#496152}.keyword{border-radius:16px;background:#f3f5ef;padding:24px 14px;margin:12px 0}.keyword strong{color:#315e4d;font-family:Georgia,serif}.keyword p{color:#6b776f}.timer{border:1px solid #e4e8de;border-radius:16px;padding:20px;margin:18px 0;background:#fbfcf8}.timer .eyebrow{color:#668271}.timer strong{font-family:Georgia,serif;color:#315e4d;font-size:52px}.timer .row{justify-content:flex-start}.timer button{font-size:12px;padding-inline:13px}.progress{gap:8px;margin:0 14px}.progress span{border-radius:9px;background:#e8ebe4}.progress span.active{background:#527966}.progress span.past{background:#aab9a9}.spoken{margin:24px -26px -26px;padding:22px 30px;background:#f5f6f0;border:0;border-top:1px solid #e4e8de;min-height:142px}.spoken h2{color:#718078;letter-spacing:.1em;font-size:11px}.spoken p{color:#3a5549;font-size:21px}.conversation .micro{color:#7a847e}textarea,select{border-color:#d8ddd4;border-radius:10px;background:#fffefa}button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a7c1ad;outline-offset:2px}.notice,#error{border-radius:10px;border-color:#b98b62;background:#fbf4e9;color:#72563d}footer{color:#78837b}@media(max-width:760px){.intro{padding:34px 0 26px}.intro&gt;p:last-child{font-size:16px}.workspace{border-radius:14px}.conversation,.preview{padding:20px}.spoken{margin:20px -20px -20px;padding:18px 22px}.preview #screen{min-height:290px}.block-title{font-size:32px}}
-</style><script type="module" src="/web/app.js"></script></head>
-<body><header><a href="/" class="brand">aira <span>· Quiet Momentum</span></a><span class="micro">LOCAL PREVIEW · MOCK MODE</span></header>
-  <main><div class="hero-shell"><section class="intro"><p class="eyebrow">TALK · SEE · DO · QUIET MOMENTUM</p><h1>A session that listens, then changes.</h1><p>Tell Aira what you need in your own words. The screen becomes a plan, a live timer, and a visible record of what changed. This local simulation uses no microphone, model API, or physical tracking.</p></section><aside class="companion-card"><div class="companion-art"><img src="/web/aira-doodle.svg" alt="A friendly hand-drawn green character with a leafy tuft" width="168" height="168"></div><div><p class="eyebrow">YOUR COMPANION</p><p id="companion-note">I’m here to make the next step feel easy.</p><span class="micro">No pressure. You’re in control.</span></div></aside></div>
-<details class="provider-panel runtime-controls"><summary>Prototype settings <strong id="mode">Connecting</strong></summary><div class="provider-content"><label for="provider">Run with</label><select id="provider" disabled><option>Connecting…</option></select><p id="provider-description" class="micro"></p><label id="consent-wrap" hidden><input type="checkbox" id="consent"> <span id="consent-label"></span></label></div></details>
-  <div class="workspace"><section class="conversation"><div class="panel-heading"><h2>AIRA · HERE WITH YOU</h2><button id="reset">Start again</button></div><div id="transcript" role="log" aria-label="Conversation with Aira"></div><div id="error" role="alert" hidden><p id="error-message"></p><button id="retry">Retry</button></div><form id="composer"><label for="message" id="status" role="status">Ready when you are</label><textarea id="message" maxlength="2000" rows="3" placeholder="I’m tired, have 8 minutes. Keep cues quiet."></textarea><div class="row"><span class="micro">Interrupt or adjust in your own words</span><button id="send" class="primary" disabled>Send ↗</button></div></form><div class="row"><button id="sample" class="start-button">Begin preview</button><button id="cancel" disabled>Cancel reply</button></div></section>
-<section class="preview"><div class="panel-heading"><h2>YOUR SESSION</h2><button id="pause" disabled>Pause</button></div><div id="pending" class="notice" hidden>One moment · your place is kept</div><div id="paused" class="notice" hidden>Paused · your place is kept</div><div id="progress" class="progress" aria-label="Session progress"></div><div id="screen"></div><nav id="navigation" class="row" hidden aria-label="Session controls"><button id="back">← Back</button><span id="position" class="micro"></span><button id="next" class="primary">Next →</button></nav><section class="spoken"><h2>AIRA’S CUE <span class="micro">TEXT PREVIEW · AUDIO OFF</span></h2><p id="spoken"></p><span class="micro">A voice and motion are not included in this local prototype.</span></section></section></div>
-<details class="builder"><summary>Builder tools <span class="micro">Inspect the protocol. Test a failure. Capture evidence.</span></summary><div class="tools-grid"><section><h3>Try a local patch</h3><p class="micro">OpenUI data only. This does not edit your skill or source files. Use a stable existing name to patch it.</p><label for="patch">Statement(s)</label><textarea id="patch" rows="4" spellcheck="false" placeholder='count1 = Keyword("6", "Sample value")'></textarea><button id="apply-patch">Apply local patch</button><p id="patch-status" role="status" class="micro"></p><details><summary>What the model receives next</summary><pre id="state-json"></pre></details></section><section><h3>Test and capture</h3><div id="mock-controls"><label for="fault">Next mock response</label><select id="fault"><option value="none">Normal</option><option value="slow">Slow · try interrupting</option><option value="schema">Invalid OpenUI schema</option><option value="request">Failed request</option></select></div><label for="run-label">Run label</label><select id="run-label"><option value="before">Before</option><option value="after">After</option></select><label for="note">What did you learn?</label><textarea id="note" rows="3" maxlength="2000" placeholder="Optional run note."></textarea><button id="export">Download run JSON</button><p id="export-status" class="micro" role="status">Manual capture. Review and move exports into runs/.</p></section></div></details>
-  <footer>Quiet Momentum · Mock mode is local and makes no model calls. No physical activity is requested or tracked.</footer></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f1eb">
+  <title>AiRA · What do you need right now?</title>
+  <link rel="stylesheet" href="/web/styles.css">
+  <link rel="stylesheet" href="/web/quiet.css">
+  <link rel="stylesheet" href="/web/landing.css">
+  <script type="module" src="/web/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="#top" class="brand" aria-label="AiRA home">aiRA</a>
+    <nav class="top-nav" aria-label="Main navigation">
+      <a href="#how-it-works">How it works</a>
+      <a class="nav-try" href="#hero-composer-slot">Try AiRA <span aria-hidden="true">↗</span></a>
+    </nav>
+    <button type="button" class="micro local-status" id="header-mode" aria-controls="runtime-controls" aria-expanded="false" title="Open preview settings">LOCAL PROTOTYPE · MOCK AI</button>
+  </header>
+
+  <main id="top">
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="character-scene">
+        <span class="character-halo" aria-hidden="true"></span>
+        <div class="companion-card" id="companion-card" data-state="planning">
+          <img src="/web/aira-portrait.png" alt="AiRA, a friendly illustrated character" width="300" height="278">
+          <span class="character-spark" aria-hidden="true">✳</span>
+        </div>
+        <p class="character-note" id="companion-note" aria-live="polite">I’m here when you need support.</p>
+        <p class="character-aside">One conversation<br>can change the whole session.<span aria-hidden="true"></span></p>
+      </div>
+      <h1 id="hero-title">What do you need<br class="desktop-break"> right now?</h1>
+      <p class="hero-copy">Tell AiRA what you’re feeling, how much time you have,<br class="wide-break"> or what you want to do. She’ll figure out the rest.</p>
+
+      <div id="hero-composer-slot" class="composer-slot hero-composer-slot" aria-label="Start a conversation with AiRA"></div>
+      <div class="quick-prompts" id="quick-prompts" aria-label="Things you can say to AiRA">
+        <div class="prompt-row">
+          <button type="button" data-prompt="I need to clear my head">Clear my head</button>
+          <button type="button" data-prompt="I’m tired and I only have 8 minutes">I’m tired</button>
+          <button type="button" data-prompt="I only have 8 minutes">I only have 8 minutes</button>
+        </div>
+        <div class="prompt-row">
+          <button type="button" data-prompt="I want to move a little">Move a little</button>
+          <button type="button" data-prompt="Wake me up">Wake me up</button>
+          <button type="button" data-prompt="I want to push myself">Push myself</button>
+          <button type="button" data-prompt="What can you do?">What can you do?</button>
+        </div>
+      </div>
+      <div class="context-prompts" id="context-prompts" aria-label="Optional situation shortcuts">
+        <span class="context-label"><span aria-hidden="true">⌖</span> What’s your situation?</span>
+        <button type="button" data-prompt="I’m in a tight space">Tight space</button>
+        <button type="button" data-prompt="I’m in an open room">Open room</button>
+        <button type="button" data-prompt="I only have 3 minutes">Short on time</button>
+      </div>
+      <button type="button" id="sample" class="sample-link">Or explore a sample session <span aria-hidden="true">→</span></button>
+      <p id="hero-response" class="hero-response" role="status" hidden></p>
+    </section>
+
+    <details class="provider-panel runtime-controls" id="runtime-controls">
+      <summary>Preview settings <strong id="mode">Connecting</strong></summary>
+      <div class="provider-content">
+        <label for="provider">Run with</label>
+        <select id="provider" disabled><option>Connecting…</option></select>
+        <p id="provider-description" class="micro"></p>
+      </div>
+    </details>
+
+    <section class="experience" id="experience" hidden aria-labelledby="experience-title">
+      <div class="experience-bar">
+        <div>
+          <p class="eyebrow">QUIET MOMENTUM · A FICTIONAL PREVIEW</p>
+          <h2 id="experience-title">Shaped around what you need.</h2>
+        </div>
+        <div class="experience-actions">
+          <span id="position" class="micro"></span>
+          <button id="reset" type="button">Start again</button>
+        </div>
+      </div>
+      <div id="pending" class="notice" role="status" hidden>One moment · your place is kept</div>
+      <div id="paused" class="notice" role="status" hidden>Paused · your place is kept</div>
+      <p id="fallback-note" class="fallback-note" role="status" hidden>Gemini didn’t respond this time, so I switched to the local preview. You can keep going here.</p>
+      <div class="session-stage">
+        <div class="session-stage-head">
+          <span class="eyebrow">YOUR SESSION</span>
+          <img class="session-character" src="/web/aira-doodle.svg" alt="AiRA character">
+          <button id="pause" type="button" disabled>Pause</button>
+        </div>
+        <div id="progress" class="progress" aria-label="Session progress"></div>
+        <div id="screen"></div>
+        <nav id="navigation" class="session-navigation" hidden aria-label="Session controls">
+          <button id="back" type="button">← Back</button>
+          <button id="next" type="button" class="primary">Next →</button>
+        </nav>
+        <section class="spoken" aria-live="polite" aria-atomic="true">
+          <span class="eyebrow">RIGHT HERE, RIGHT NOW <span class="micro">· TEXT PREVIEW</span></span>
+          <p id="spoken"></p>
+          <span class="micro">This prototype uses text and simulated timers. No activity is tracked.</span>
+        </section>
+      </div>
+
+      <div id="active-composer-slot" class="composer-slot active-composer-slot"></div>
+      <div id="composer-area" class="composer-area">
+        <div id="error" role="alert" hidden><p id="error-message"></p><button id="retry" type="button">Retry</button></div>
+        <form id="composer" class="composer-form" aria-label="Tell AiRA what you need">
+          <label class="sr-only" for="message">Tell AiRA what you need</label>
+          <span class="composer-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.3-.7L4 20l1.7-4A7.5 7.5 0 1 1 20 11.5Z"/></svg></span>
+          <textarea id="message" maxlength="2000" rows="2" placeholder="Tell me what you need…" autocomplete="off"></textarea>
+          <label id="consent-wrap" class="consent-check" hidden><input type="checkbox" id="consent"> <span id="consent-label"></span></label>
+          <div class="composer-submit-row">
+            <span id="status" role="status" class="micro">Ready when you are</span>
+            <button id="send" type="submit" class="primary" disabled>Talk to AiRA <span aria-hidden="true">↗</span></button>
+          </div>
+        </form>
+        <div class="composer-controls">
+          <button id="cancel" type="button" disabled>Cancel reply</button>
+          <span class="micro">You can interrupt and change the session at any time.</span>
+        </div>
+      </div>
+
+      <details class="transcript-details">
+        <summary>Conversation history <span class="micro">Your words and AiRA’s replies</span></summary>
+        <div id="transcript" role="log" aria-label="Conversation with AiRA" aria-live="polite"></div>
+      </details>
+
+    </section>
+
+    <section class="how-section" id="how-it-works" aria-labelledby="how-title">
+      <div class="section-heading">
+          <p class="eyebrow">NOT JUST A WORKOUT</p>
+          <h2 id="how-title">Don’t configure the experience.<br>Just tell AiRA.</h2>
+          <p>One sentence is enough to begin. You can change your mind as you go.</p>
+        </div>
+        <div class="steps-row">
+          <article class="step">
+          <div class="step-marker"><span class="step-number">01</span><span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.3-.7L4 20l1.7-4A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8.5 11.5h.01M12.5 11.5h.01M16.5 11.5h.01"/></svg></span></div>
+          <h3>Talk</h3><p>Tell AiRA what’s going on.</p>
+          <p class="example-quote">“I’m tired and I only have 8 minutes.”</p>
+          </article>
+          <article class="step">
+          <div class="step-marker"><span class="step-number">02</span><span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4.5a3.5 3.5 0 0 0-3.2 5 3.5 3.5 0 0 0 .2 6.7A3.5 3.5 0 0 0 9 20V4.5Zm6 0a3.5 3.5 0 0 1 3.2 5 3.5 3.5 0 0 1-.2 6.7A3.5 3.5 0 0 1 15 20V4.5ZM9 8h2m-2 4h2m2-4h2m-2 4h2m-4 4v2m2-2v2"/></svg></span></div>
+          <h3>Understand</h3><p>AiRA turns what you said into a session plan.</p>
+          <div class="plan-chips"><span>8 min · Low impact</span><span>Short intervals · More recovery</span></div>
+          </article>
+          <article class="step">
+          <div class="step-marker"><span class="step-number">03</span><span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9m4 0h3M4 17h3m4 0h9M13 4v6M9 14v6"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span></div>
+          <h3>Adapt</h3><p>Change your mind at any time.</p>
+          <p class="example-quote">“Make it easier.”<br>“Give me a break.”<br>“Less talking.”</p>
+          </article>
+      </div>
+    </section>
+
+    <section class="adapt-section" aria-labelledby="adapt-title">
+      <div class="adapt-copy">
+        <p class="eyebrow">A SMALL INTERRUPTION. A DIFFERENT EXPERIENCE.</p>
+        <h2 id="adapt-title">The screen changes when you do.</h2>
+        <p>No settings hunt. Say what changed; the next part, the pause, and the cues respond together.</p>
+        <p class="adapt-caption">A visible decision, shaped by what you asked for.</p>
+      </div>
+      <div class="adapt-example">
+        <p class="example-quote">“I’m more tired than I expected. Make the next part shorter.”</p>
+        <div class="adapt-flow">
+          <div class="adapt-state before">
+            <span class="eyebrow">BEFORE</span>
+            <div><strong>30<small>s</small></strong><span>sample</span></div>
+            <div><strong>30<small>s</small></strong><span>pause</span></div>
+          </div>
+          <span class="adapt-arrow" aria-label="AiRA adapts">→</span>
+          <div class="adapt-state after">
+            <span class="eyebrow">AFTER · ADJUSTED</span>
+            <div><strong>20<small>s</small></strong><span>sample</span></div>
+            <div><strong>40<small>s</small></strong><span>pause</span></div>
+          </div>
+        </div>
+        <p class="adapt-result">You asked for a shorter next part, so the on-screen sample changed and the pause grew.</p>
+      </div>
+    </section>
+
+    <section class="memory-section" aria-labelledby="memory-title">
+      <div class="memory-mark" aria-hidden="true">↗</div>
+      <div>
+        <p class="eyebrow">MEMORY, ONLY IF YOU ASK</p>
+        <h2 id="memory-title">Your preferences stay yours.</h2>
+        <p>At the end, you can choose <strong>Remember this setup</strong> or <strong>Not now</strong>. Saved preferences live only in this browser tab, and you can forget them whenever you want.</p>
+      </div>
+    </section>
+
+    <section class="privacy-section" id="privacy" aria-labelledby="privacy-title">
+      <details>
+        <summary id="privacy-title">A little about privacy</summary>
+        <div class="privacy-copy">
+          <p><strong>Mock</strong> stays on this device and makes no model call. <strong>Gemini</strong> is optional; after consent, the backend sends your latest message and a compact session summary. Phone-like numbers are redacted.</p>
+        </div>
+      </details>
+    </section>
+
+    <details class="builder">
+      <summary>Builder tools <span class="micro">Inspect the protocol · test a failure · capture evidence</span></summary>
+      <div class="tools-grid">
+        <section>
+          <h3>Try a local patch</h3>
+          <p class="micro">OpenUI data only. This does not edit your skill or source files. Use a stable existing name to patch it.</p>
+          <label for="patch">Statement(s)</label>
+          <textarea id="patch" rows="4" spellcheck="false" placeholder='count1 = Keyword("6", "Sample value")'></textarea>
+          <button id="apply-patch" type="button">Apply local patch</button>
+          <p id="patch-status" role="status" class="micro"></p>
+          <details><summary>What the model receives next</summary><pre id="state-json"></pre></details>
+        </section>
+        <section>
+          <h3>Test and capture</h3>
+          <div id="mock-controls"><label for="fault">Next mock response</label><select id="fault"><option value="none">Normal</option><option value="slow">Slow · try interrupting</option><option value="schema">Invalid OpenUI schema</option><option value="request">Failed request</option></select></div>
+          <label for="run-label">Run label</label>
+          <select id="run-label"><option value="before">Before</option><option value="after">After</option></select>
+          <label for="note">What did you learn?</label>
+          <textarea id="note" rows="3" maxlength="2000" placeholder="Optional run note."></textarea>
+          <button id="export" type="button">Download run JSON</button>
+          <p id="export-status" class="micro" role="status">Manual capture. Review and move exports into runs/.</p>
+        </section>
+      </div>
+    </details>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#top" class="brand">aiRA</a>
+    <p>Your session, your pace.</p>
+    <nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><a href="#privacy">Privacy</a><a href="https://airaai.in" target="_blank" rel="noreferrer">About</a></nav>
+  </footer>
+</body>
+</html>

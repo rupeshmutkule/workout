@@ -25,8 +25,8 @@ export async function collect(root) {
     const bytes = await readFile(path);
     if (!relative.endsWith('.png')) {
       const text = bytes.toString('utf8');
-      if (/sk-[a-zA-Z0-9_-]{16,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer [a-zA-Z0-9._-]{24,}/.test(text)) throw new Error(`Possible credential in ${relative}. Remove it before packaging.`);
-      if (/^[ \t]*(?:OPENAI_API_KEY|ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|CODEX_ACCESS_TOKEN|API_KEY|TOKEN|PASSWORD)[ \t]*=[ \t]*[^\s#]/m.test(text)) throw new Error(`Possible secret assignment in ${relative}. Remove it before packaging.`);
+      if (/sk-[a-zA-Z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer [a-zA-Z0-9._-]{24,}/.test(text)) throw new Error(`Possible credential in ${relative}. Remove it before packaging.`);
+      if (/^[ \t]*(?:OPENAI_API_KEY|GEMINI_API_KEY|ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|CODEX_ACCESS_TOKEN|API_KEY|TOKEN|PASSWORD)[ \t]*=[ \t]*[^\s#]/m.test(text)) throw new Error(`Possible secret assignment in ${relative}. Remove it before packaging.`);
     }
     files.push({ path: relative, bytes, sha256: hash(bytes) });
   }

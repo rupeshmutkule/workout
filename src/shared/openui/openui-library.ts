@@ -9,6 +9,9 @@ export const OPENUI_LIBRARY = {
   ListItem: { args: ["text", "marker"], required: 1 },
   Alert: { args: ["tone", "text"], required: 2 },
   Timer: { args: ["label", "seconds", "image"], required: 2 },
+  SetDots: { args: ["current", "total"], required: 2 },
+  EffortPicker: { args: ["selected"], required: 1 },
+  RestRing: { args: ["label", "seconds"], required: 2 },
   Cue: { args: ["text"], required: 1 },
   FollowUps: { args: ["prompts"], required: 1 },
 } as const satisfies Record<string, StatementSpec>;

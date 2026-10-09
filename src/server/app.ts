@@ -12,6 +12,7 @@ import { providerStatuses, type Config } from './config.js';
 import { claudeTurn, codexTurn } from './cli.js';
 import { type ProcessTransport } from './subprocess.js';
 import { redactValue } from '../shared/redact.js';
+import { classifyWithGemini, structuredTurn } from './gemini.js';
 export { readConfig } from './config.js';
 const securityHeaders = {
   'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer',
@@ -30,6 +31,10 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
   catch { throw new PublicError('INPUT', 'Send valid JSON.', 400); }
 }
+function localToken(req:IncomingMessage,token:string){
+  const supplied=Buffer.from(String(req.headers['x-local-token']??''));
+  if(supplied.length!==token.length||!timingSafeEqual(supplied,Buffer.from(token)))throw new PublicError('FORBIDDEN','Reload the local app before sending.',403);
+}
 export function createApp(config: Config, transport: typeof fetch = fetch, cliTransport?: ProcessTransport, cliResolver?: (path: string) => Promise<string>) {
   const token = randomBytes(32).toString('hex');
   let active = 0;
@@ -46,8 +51,7 @@ export function createApp(config: Config, transport: typeof fetch = fetch, cliTr
         json(res, 200, { defaultProvider: 'mock', providers: providerStatuses(config), token, appVersion: APP_VERSION }); return;
       }
       if (path === '/api/turn' && req.method === 'POST') {
-        const supplied = Buffer.from(String(req.headers['x-local-token'] ?? ''));
-        if (supplied.length !== token.length || !timingSafeEqual(supplied, Buffer.from(token))) throw new PublicError('FORBIDDEN', 'Reload the local app before sending.', 403);
+        localToken(req,token);
         if (req.headers['content-type'] !== 'application/json') throw new PublicError('INPUT', 'Expected application/json.', 415);
         const input = await readBody(req);
         if (!isRequest(input)) throw new PublicError('INPUT', 'The conversation request is invalid. Reset and try again.', 400);
@@ -63,12 +67,16 @@ export function createApp(config: Config, transport: typeof fetch = fetch, cliTr
           const prompt = await loadPrompt(config.root);
           const skill = prompt.instructions;
           const versions: Versions = { app: APP_VERSION, schema: SCHEMA_VERSION, skillHash: prompt.skillHash, protocolHash: prompt.protocolHash, mode: input.provider === 'mock' ? 'mock' : 'live', provider: input.provider, model: provider.model, returnedModel: null, runtimeVersion: null, restrictionProfile: null };
-          let turn;
+          let turn,decision;
           if (input.provider === 'mock') {
             await delay(input.fault === 'slow' ? 2400 : 350, undefined, { signal: controller.signal });
             if (input.fault === 'request') throw new PublicError('MOCK_REQUEST', 'Simulated model request failure. Retry this turn.');
             if (input.fault === 'schema') throw new PublicError('SCHEMA', 'Simulated invalid component schema. Retry this turn.');
             turn = mockTurn(input, await readFile(join(config.root, 'examples/wiring.openui'), 'utf8'));
+          } else if(input.provider==='gemini-api'){
+            const result=await classifyWithGemini(input,config.gemini,controller.signal,transport,skill);
+            turn=structuredTurn(input,result.decision,await readFile(join(config.root,'examples/wiring.openui'),'utf8'));
+            decision=result.decision;versions.returnedModel=result.returnedModel;
           } else if (input.provider === 'claude-cli') {
             const result = await claudeTurn(input, skill, config.claude, controller.signal, cliTransport, cliResolver);
             turn = result.turn; versions.returnedModel = result.returnedModel; versions.runtimeVersion = result.runtimeVersion; versions.restrictionProfile = result.restrictionProfile;
@@ -78,7 +86,7 @@ export function createApp(config: Config, transport: typeof fetch = fetch, cliTr
             turn = result.turn; versions.returnedModel = result.returnedModel;
           }
           if (!isTurn(turn)) throw new PublicError('SCHEMA', 'The response did not match the component schema. Retry this turn.');
-          const safe = redactValue({ turn, versions }) as Result;
+          const safe = redactValue({ turn, ...(decision?{decision}:{}), versions }) as Result;
           const preview = new ScreenDocument();
           try { if (input.state.ui_state) preview.apply('```openui\n' + input.state.ui_state + '\n```'); preview.apply(safe.turn.reply); }
           catch { throw new PublicError('SCHEMA', 'The response has an invalid OpenUI screen. The previous screen is kept. Retry or check your component/skill.'); }
@@ -90,12 +98,12 @@ export function createApp(config: Config, transport: typeof fetch = fetch, cliTr
       if (req.method !== 'GET') { json(res, 405, { error: 'Method not allowed.' }); return; }
       // Explicit static roots only. No server source, .env, skill or filesystem routes.
       const file = path === '/' ? 'web/index.html' : decodeURIComponent(path.slice(1));
-      if (!/^(web|shared)\/[a-zA-Z0-9/_-]+\.(js|css|html|svg)$/.test(file)) { json(res, 404, { error: 'Not found.' }); return; }
+      if (!/^(web|shared)\/[a-zA-Z0-9/_-]+\.(js|css|html|svg|png)$/.test(file)) { json(res, 404, { error: 'Not found.' }); return; }
       const root = await realpath(join(config.root, 'dist'));
       const target = await realpath(resolve(root, file));
       if (!['web', 'shared'].some(directory => target.startsWith(join(root, directory) + sep))) { json(res, 404, { error: 'Not found.' }); return; }
       const data = await readFile(target);
-      const mime: Record<string, string> = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' };
+      const mime: Record<string, string> = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png' };
       res.writeHead(200, { ...securityHeaders, 'Content-Type': `${mime[extname(target)]}; charset=utf-8` }); res.end(data);
     } catch (error) {
       if (res.destroyed || res.writableEnded) return;

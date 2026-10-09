@@ -16,6 +16,9 @@ export const propValidators: Record<string, (p: Record<string, unknown>) => bool
   ListItem: p => text(p.text) && optional(p.marker, v => oneOf(v, ['bullet','numbered','plus','minus'])),
   Alert: p => oneOf(p.tone, ['info','warning','danger']) && text(p.text),
   Timer: p => text(p.label) && Number.isInteger(p.seconds) && Number(p.seconds) > 0 && Number(p.seconds) <= 3600 && (p.image === undefined || p.image === null),
+  SetDots: p => Number.isInteger(p.current) && Number(p.current) >= 1 && Number.isInteger(p.total) && Number(p.total) >= Number(p.current) && Number(p.total) <= 12,
+  EffortPicker: p => Number.isInteger(p.selected) && Number(p.selected) >= 0 && Number(p.selected) <= 5,
+  RestRing: p => text(p.label) && Number.isInteger(p.seconds) && Number(p.seconds) > 0 && Number(p.seconds) <= 3600,
   Cue: p => text(p.text),
   FollowUps: p => Array.isArray(p.prompts) && p.prompts.length <= 6 && p.prompts.every(text),
 };

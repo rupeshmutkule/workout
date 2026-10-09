@@ -4,12 +4,12 @@ export const SCHEMA_VERSION = '3';
 export const providers = ['mock', 'gemini-api', 'openai-api', 'claude-cli', 'codex-cli'] as const;
 export type Provider = typeof providers[number];
 export type ProviderStatus = { id: Provider; label: string; enabled: boolean; model: string; message: string };
-export const intents = ['START_SESSION','PAUSE','RESUME','SKIP','END_SESSION','MAKE_EASIER','MAKE_HARDER','SHORTEN_SESSION','EXTEND_SESSION','MORE_RECOVERY','QUIETER','MORE_GUIDANCE','SHOW_NEXT','REPEAT','SAVE_PREFERENCE','SET_REMINDER','EXPLAIN_PRODUCT'] as const;
+export const intents = ['START_SESSION','PAUSE','RESUME','SKIP','END_SESSION','MAKE_EASIER','MAKE_HARDER','SHORTEN_SESSION','EXTEND_SESSION','MORE_RECOVERY','QUIETER','MORE_GUIDANCE','SHOW_NEXT','REPEAT','REPORT_EFFORT','SAVE_PREFERENCE','EXPLAIN_PRODUCT'] as const;
 export type Intent = typeof intents[number];
-export type AiraAction = { type: Intent; reminderAt: string; sessionType: string };
+export type AiraAction = { type: Intent };
 export type Turn = { reply: string; intent?: Intent; action?: AiraAction; duration?: number; intensity?: 'low'|'medium'|'high'; cueMode?: 'quiet'|'brief'|'guided'; workSeconds?: number; recoverySeconds?: number };
 export type GeminiDecision = {
-  intent: Intent; goal: 'clear_head'|'energize'|'move'|'push'|'reset'; duration: number;
+  intent: Intent; goal: 'clear_head'|'energize'|'move'|'push'|'reset'; space:'tight'|'open'|'flexible'; effortScore:number; duration: number;
   intensity: 'low'|'medium'|'high'; cueMode: 'quiet'|'brief'|'guided'; workSeconds: number;
   recoverySeconds: number; response: string; action: AiraAction;
 };

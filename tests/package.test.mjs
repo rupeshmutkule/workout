@@ -28,3 +28,14 @@ test('submission export rejects a CLI credential assignment in candidate source'
   await mkdir(join(root, 'src')); await writeFile(join(root, 'src/app.ts'), 'CLAUDE_CODE_OAUTH_TOKEN' + '=do-not-export');
   await assert.rejects(collect(root), /Possible secret assignment/);
 });
+test('submission export rejects Gemini and OpenAI key assignments', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'workout-package-')); t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(join(root, 'src')); await writeFile(join(root, 'src/app.ts'), 'GEMINI_API_KEY=fixture-secret');
+  await assert.rejects(collect(root), /Possible secret assignment/);
+  await rm(join(root, 'src/app.ts'));
+  await writeFile(join(root, 'src/app.ts'), 'const key="AIza' + 'A'.repeat(30) + '";');
+  await assert.rejects(collect(root), /Possible credential/);
+  await rm(join(root, 'src/app.ts'));
+  await writeFile(join(root, 'src/app.ts'), 'OPENAI_API_KEY=fixture-secret');
+  await assert.rejects(collect(root), /Possible secret assignment/);
+});

@@ -12,7 +12,8 @@ export class Conversation {
   selectProvider(provider: Provider) { this.cancel('interrupted');this.provider=provider;this.consent=false;this.changed(); }
   localEvent(text: string, interrupt = true) { if (interrupt && this.pending) this.cancel('interrupted'); this.clientEvents.push(text); this.clientEvents=this.clientEvents.slice(-120); this.record({kind:'screen-event',text}); this.changed(); }
   async send(text: string, fault: RequestData['fault']='none', retry=false) {
-    const input=text.trim(); if(!input || input.length>2000) return;
+    const input=text.trim(); if(!input) return;
+    if(input.length>2000){this.error='Keep your message under 2,000 characters.';this.changed();return;}
     if(!retry && this.messages.at(-1)?.role==='user' && this.messages.at(-1)?.content===input) return;
     if(!retry && this.messages.length>=58) {this.error='Run full. Export and reset.';this.changed();return;}
     this.cancel('interrupted');
